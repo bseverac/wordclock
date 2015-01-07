@@ -1,10 +1,14 @@
-
-CC=avr-g++ -c -g -Os -w -fno-exceptions -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=22
-
 CFLAGS=-W -Wall -ansi -pedantic
 
-pc: build common pc_main
-ino: build common ino_main convert_elf
+pc: pc_cc build common pc_main
+test: pc_cc build common pc_test
+ino: ino_cc build common ino_main convert_elf
+
+pc_cc:
+	$(eval CC=gcc)
+
+ino_cc:
+	$(eval CC=avr-g++ -c -g -Os -w -fno-exceptions -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=22)
 
 convert_elf:
 	avr-gcc -Os -Wl,--gc-sections -mmcu=atmega328p -o build/main_ino.elf build/main_ino.o  build/clock.o build/board_ino.o build/matrice_ino.o build/master.o -lm
@@ -15,12 +19,18 @@ convert_elf:
 pc_main: build/main_i386.o build/board_i386.o build/matrice_i386.o
 	$(CC) $^ build/clock.o build/master.o -o main_i386
 
+pc_test: build/test_i386.o build/board_i386.o build/matrice_i386.o
+	$(CC) $^ build/clock.o build/master.o -o test_i386
+
 ino_main: build/main_ino.o build/clock.o build/board_ino.o build/matrice_ino.o build/master.o
 
 common: build/clock.o build/master.o
 
 build:
 	mkdir build
+
+build/test_i386.o: test_i386.cpp
+	$(CC) -o $@ -c $^
 
 build/main_i386.o: main_i386.cpp
 	$(CC) -o $@ -c $^
