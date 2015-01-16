@@ -29,6 +29,6 @@ int main()
   Master master;
   while(1){
     master.loop(1000);
-    sleepcp(10000);
+    sleepcp(1000);
   }
 }

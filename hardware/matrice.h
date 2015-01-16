@@ -6,7 +6,7 @@ class Matrice {
 
 public:
   Matrice();
-  void update(LED_MATRIX);
+  void update(LETTER_MATRIX);
 };
 
 #endif

@@ -1,7 +1,8 @@
 #ifndef MASTER_HEADER
 #define MASTER_HEADER
 
-#include "../models/clock.h"
+#include "../models/letter_matrix.h"
+#include "../models/time.h"
 #include "../hardware/board.h"
 
 class Master {
@@ -10,7 +11,8 @@ public:
   Master();
   void loop(int);
 private:
-  Clock clock;
+  Time time;
+  LetterMatrix letter_matrix;
   Board board;
 };
 

@@ -3,5 +3,5 @@
 
 #define CLOCK_W 15
 #define CLOCK_H 13
-#define LED_MATRIX int [CLOCK_H]
+#define LETTER_MATRIX int [CLOCK_H]
 #endif

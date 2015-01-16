@@ -22,7 +22,7 @@ char displayed_char[CLOCK_H][CLOCK_W] ={
 };
 
 void print_led(int x,int y, int led_status[CLOCK_H]){
-  int status = led_status[y] & (1 << x);
+  int status = led_status[y] & (1 << (14-x));
   if(status){
     printf("%c", displayed_char[y][x]);
   }else{
@@ -54,49 +54,8 @@ void print_binary(int n,int size, int max){
     n >>= 1;
   }
 }
-int get_bits(int val,int offset,int num_bits){
-  return (val >> offset) & ((1<<num_bits)-1);
-}
-int offset_bits(int val, int offset){
-  return val << offset;
-}
-int get_bits_MAX(int led_status[CLOCK_H], int first_row, int num_rows,int row_direction,int offset,int num_bits){
-  int rows = first_row;
-  int eat_row = 0;
-  while(eat_row < num_rows){
-    print_binary( get_bits(led_status[rows],offset,num_bits) ,num_bits, num_bits);
-    rows+=row_direction;
-    eat_row++;
-  }
-}
-int get_bits_MAX1(int led_status[CLOCK_H]){
-  return get_bits_MAX(led_status,CLOCK_H-1,6,-1,0,8);
-}
-int get_bits_MAX2(int led_status[CLOCK_H]){
-  return get_bits_MAX(led_status,CLOCK_H-1,6,-1,8,7);
-}
-int get_bits_MAX3(int led_status[CLOCK_H]){
-  return get_bits_MAX(led_status,0,7,1,8,7);
-}
-int get_bits_MAX4(int led_status[CLOCK_H]){
-  return get_bits_MAX(led_status,0,7,1,0,8);
-}
-void print_debug_duino(int led_status[CLOCK_H]){
-  for(int y=0 ; y < CLOCK_H ; y++){
-    print_binary(led_status[y],CLOCK_W,15 );
-  }
-  printf("max1\n");
-  get_bits_MAX1(led_status);
-  printf("max2\n");
-  get_bits_MAX2(led_status);
-  printf("max3\n");
-  get_bits_MAX3(led_status);
-  printf("max4\n");
-  get_bits_MAX4(led_status);
 
-}
 /////////////////////////////////////////////////////////////////
-
 
 Matrice::Matrice(){
 }
@@ -104,6 +63,4 @@ Matrice::Matrice(){
 void Matrice::update(int led_status[CLOCK_H]){
   print(led_status);
   printf("\n");
-  print_debug_duino(led_status);
-
 }

@@ -4,6 +4,8 @@ Master::Master(){
 }
 
 void Master::loop(int elapse){
-  clock.loop(elapse);
-  board.update(clock.led_status);
+  //time.u_add(elapse);
+  time.update_time_test();
+  letter_matrix.matrix_for_time(&time);
+  board.update(letter_matrix.matrix);
 }

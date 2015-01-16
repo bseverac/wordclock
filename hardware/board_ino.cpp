@@ -4,6 +4,6 @@
 Board::Board(){
 }
 
-void Board::update(int led_status[CLOCK_H]){
-  matrice.update(led_status);
+void Board::update(int letter_status[CLOCK_H]){
+  matrice.update(letter_status);
 }

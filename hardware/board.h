@@ -6,7 +6,7 @@ class Board {
 
 public:
   Board();
-  void update(LED_MATRIX);
+  void update(LETTER_MATRIX);
 private:
   Matrice matrice;
 };
