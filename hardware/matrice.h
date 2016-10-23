@@ -6,6 +6,7 @@ class Matrice {
 
 public:
   Matrice();
+  void set_intensity(int i);
   void update(LETTER_MATRIX);
 };
 

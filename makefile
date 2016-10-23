@@ -1,64 +1,38 @@
 CFLAGS=-W -Wall -ansi -pedantic
-
-pc: pc_cc build common pc_main
-ino: ino_cc build common ino_main convert_elf
-
-pc_cc:
-	$(eval CC=g++)
+CFILES = $(wildcard hardware/lib-ino/*.c)
+CPPFILES = $(wildcard hardware/*.cpp) $(wildcard models/*.cpp) $(wildcard app/*.cpp) main.cpp
+OBJECTS = $(CPPFILES:.cpp=.o) $(CFILES:.c=.o)
+BUILD_OBJECTS = $(addprefix build/,$(OBJECTS))
+ino: ino_cc build ino_main convert_elf
 
 ino_cc:
 	$(eval CC=avr-g++ -c -g -Os -w -fno-exceptions -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=22)
 
 convert_elf:
-	avr-gcc -Os -Wl,--gc-sections -mmcu=atmega328p -o build/main_ino.elf build/main_ino.o  build/letter_matrix.o build/board_ino.o build/matrice_ino.o build/master.o -lm
+	avr-gcc -Os -Wl,--gc-sections -mmcu=atmega328p -o build/main_ino.elf $(BUILD_OBJECTS) -lm
 	avr-objcopy -O ihex -R .eeprom build/main_ino.elf ino.hex
-	avrdude -v -p m328p -P /dev/ttyACM0 -b115200 -c arduino -U flash:w:ino.hex
+	avrdude -v -p m328p -P /dev/cu.usbserial-A104K9ZJ -b57600 -c arduino -U flash:w:ino.hex
 
-
-pc_main: build/main_i386.o build/board_i386.o build/matrice_i386.o
-	$(CC) $^ build/time.o build/letter_matrix.o build/master.o -o main_i386
-
-ino_main: build/main_ino.o build/letter_matrix.o build/board_ino.o build/matrice_ino.o build/master.o
-
-common: build/time.o build/letter_matrix.o build/master.o
+ino_main: $(OBJECTS)
 
 build:
 	mkdir build
+	mkdir build/hardware
+	mkdir build/hardware/lib-ino
+	mkdir build/models
+	mkdir build/app
 
-build/test_i386.o: test_i386.cpp
-	$(CC) -o $@ -c $^
+%.o: %.cpp
+	$(CC) -o build/$@ -c $^
 
-build/main_i386.o: main_i386.cpp
-	$(CC) -o $@ -c $^
-
-build/main_ino.o: main_ino.cpp
-	$(CC) -o $@ -c $^
-
-build/master.o: app/master.cpp
-	$(CC) -o $@ -c $^
-
-build/time.o: models/time.cpp
-	$(CC) -o $@ -c $^
-
-build/letter_matrix.o: models/letter_matrix.cpp
-	$(CC) -o $@ -c $^
-
-build/board_i386.o: hardware/board_i386.cpp
-	$(CC) -o $@ -c $^
-
-build/matrice_i386.o: hardware/matrice_i386.cpp
-	$(CC) -o $@ -c $^
-
-build/board_ino.o: hardware/board_ino.cpp
-	$(CC) -o $@ -c $^
-
-build/matrice_ino.o: hardware/matrice_ino.cpp
-	$(CC) -o $@ -c $^
+%.o: %.c
+	$(CC) -o build/$@ -c $^
 
 clean_w:
 	rd /S build
+
 clean:
-	rm -rf build/*.o
+	rm -Rf build
 
 clean_all: clean
 	rm -rf main_i386
@@ -70,18 +44,27 @@ GTEST_DIR = test
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include
+CPPFLAGS += -isystem $(GTEST_DIR)/include -arch i386
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra
 
-build/time_test.o: test/models/time_test.cpp
+build/models/time_view.o: models/time_view.cpp
 	$(CC)  $(CPPFLAGS) -o $@ -c $^
 
-build/letter_matrix_test.o: test/models/letter_matrix_test.cpp
+build/models/time.o: models/time.cpp
 	$(CC)  $(CPPFLAGS) -o $@ -c $^
 
-unittest: build/time_test.o build/time.o build/time_test.o build/letter_matrix_test.o build/letter_matrix.o build/gtest_main.a
+build/models/letter_matrix.o: models/letter_matrix.cpp
+	$(CC)  $(CPPFLAGS) -o $@ -c $^
+
+build/models/time_test.o: test/models/time_test.cpp
+	$(CC)  $(CPPFLAGS) -o $@ -c $^
+
+build/models/letter_matrix_test.o: test/models/letter_matrix_test.cpp
+	$(CC)  $(CPPFLAGS) -o $@ -c $^
+
+unittest: build/models/time_view.o build/models/time_test.o build/models/time.o build/models/time_test.o build/models/letter_matrix_test.o build/models/letter_matrix.o build/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 # Builds gtest.a and gtest_main.a.

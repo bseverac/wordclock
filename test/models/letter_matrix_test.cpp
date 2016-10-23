@@ -1,5 +1,7 @@
 
 #include "../../models/letter_matrix.h"
+#include "../../models/time_view.h"
+#include "../../models/time.h"
 #include <limits.h>
 #include "gtest/gtest.h"
 
@@ -10,11 +12,22 @@ TEST(LetterMatrix, InitializeLetterMatrixWithZero) {
   }
 }
 
-TEST(LetterMatrix, LightMatrixWithOne) {
+TEST(LetterMatrix, LightMatrixLightWithInt) {
   LetterMatrix letter_matrix;
   int value[2] = {0,1};
   letter_matrix.light(value);
   EXPECT_EQ(1, letter_matrix.matrix[0]);
+}
+
+TEST(LetterMatrix, LightMatrixLightWithCoord) {
+  LetterMatrix letter_matrix;
+  letter_matrix.light(1,1);
+  EXPECT_EQ(0b10, letter_matrix.matrix[1]);
+  letter_matrix.status(1,1);
+  EXPECT_EQ(true, letter_matrix.status(1,1));
+  EXPECT_EQ(false, letter_matrix.status(1,0));
+  letter_matrix.off(1,1);
+  EXPECT_EQ(false, letter_matrix.status(1,1));
 }
 
 TEST(LetterMatrix, LightOff) {
@@ -30,7 +43,8 @@ TEST(LetterMatrix, LightOff) {
 TEST(LetterMatrix, LigthMatrixWithTime_Midnight) {
   Time time;
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]); //IL_EST
   EXPECT_EQ(0b111111000000000, letter_matrix.matrix[2]); //MINUIT
@@ -39,7 +53,8 @@ TEST(LetterMatrix, LigthMatrixWithTime_Midnight) {
 TEST(LetterMatrix, LigthMatrixWithTime_3h20) {
   Time time(3,20,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
   EXPECT_EQ(0b000111110000000, letter_matrix.matrix[1]);  //TROIS
@@ -51,7 +66,8 @@ TEST(LetterMatrix, LigthMatrixWithTime_3h20) {
 TEST(LetterMatrix, LigthMatrixWithTime_1h1) {
   Time time(1,1,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
   EXPECT_EQ(0b111000000000000, letter_matrix.matrix[3]);  //UNE
@@ -63,7 +79,8 @@ TEST(LetterMatrix, LigthMatrixWithTime_1h1) {
 TEST(LetterMatrix, LigthMatrixWithTime_12h15) {
   Time time(12,15,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
   EXPECT_EQ(0b000000000011110, letter_matrix.matrix[1]);  //MIDI
@@ -74,7 +91,8 @@ TEST(LetterMatrix, LigthMatrixWithTime_12h15) {
 TEST(LetterMatrix, LigthMatrixWithTime_23h30) {
   Time time(23,30,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
   EXPECT_EQ(0b000000011110000, letter_matrix.matrix[3]);  //ONZE
@@ -85,11 +103,12 @@ TEST(LetterMatrix, LigthMatrixWithTime_23h30) {
 TEST(LetterMatrix, LigthMatrixWithTime_23h40) {
   Time time(23,40,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
-  EXPECT_EQ(0b000000011110000, letter_matrix.matrix[3]);  //ONZE
-  EXPECT_EQ(0b111111000011111, letter_matrix.matrix[4]);  //HEURES_MOINS
+  EXPECT_EQ(0b111111000000000, letter_matrix.matrix[2]);  //ONZE
+  EXPECT_EQ(0b000000000011111, letter_matrix.matrix[4]);  //HEURES_MOINS
   EXPECT_EQ(0b000000000011111, letter_matrix.matrix[5]);  //VINGT
   EXPECT_EQ(0b000000011111110, letter_matrix.matrix[12]); //MINUTES
 }
@@ -97,7 +116,8 @@ TEST(LetterMatrix, LigthMatrixWithTime_23h40) {
 TEST(LetterMatrix, LigthMatrixWithTime_23h31) {
   Time time(23,31,0,0);
   LetterMatrix letter_matrix;
-  letter_matrix.matrix_for_time(&time);
+  TimeView time_view;
+  time_view.perform(&letter_matrix, &time);
 
   EXPECT_EQ(0b011011100000000, letter_matrix.matrix[0]);  //IL_EST
   EXPECT_EQ(0b000000011110000, letter_matrix.matrix[3]);  //ONZE
